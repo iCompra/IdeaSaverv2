@@ -1,0 +1,41 @@
+Build "Idea Saver" (VoiceNote Scribbler), a Progressive Web App (PWA) designed to be an intelligent personal AI assistant. Its core function is to capture fleeting thoughts via voice notes and transform them into structured, actionable content using AI.
+
+**Core Principles & Vision:**
+*   **User Experience (UX):** Frictionless, intuitive, delightful.
+*   **Performance:** Fast, fluid, responsive.
+*   **Quality:** Production-ready code, robust error handling, secure.
+
+**Design Aesthetic (Crucial):**
+*   **Theme:** Predominantly dark mode (`dark-primary-bg: #1B0C30` main background, `dark-secondary-bg: #2C1A4A` for cards/containers).
+*   **Light Mode:** Provide a well-defined light theme (`light-primary-bg: #F0F2F5`, `light-secondary-bg: #FFFFFF`) that is not just inverted, but has its own subtle texture and aesthetic.
+*   **Accent Colors:** Vibrant `accent-purple: #8A2BE2` and complementary `accent-blue: #5A55F5` for interactive elements and gradients.
+*   **Roundedness:** Consistent `rounded-xl` for major containers/cards, `rounded-lg` for input fields and buttons.
+*   **Typography:** Modern, clean sans-serif (e.g., Inter font family).
+*   **Gradients:** Subtle purple-to-blue gradients for primary action buttons.
+*   **Animations:** Fluid and dynamic animations using **Framer Motion** for transitions, hovers, clicks, and state changes to provide a native app feel. (e.g., pulse effect on recording button, subtle fades/slides for modals).
+*   **Immersive Backgrounds:** Utilize techniques like `backdrop-blur` for headers/overlays and `mix-blend-exclusion` for text over dynamic backgrounds (e.g., `LavaLamp` component).
+*   **Mobile-First:** All designs and layouts must prioritize the mobile experience, adapting gracefully to larger screens. The app should feel truly "installable" like a native Android app.
+
+**Technical Stack (Strict Adherence):**
+*   **Framework:** Next.js (App Router).
+*   **Language:** TypeScript.
+*   **Styling:** Tailwind CSS with **shadcn/ui components**.
+*   **Animations:** **Framer Motion**.
+*   **Icons:** **Lucide React**. Do NOT install other packages for UI themes, icons, or animations unless absolutely necessary or explicitly requested.
+*   **Backend (CRITICAL):** **Supabase** is the **SOLE** backend service for Authentication, PostgreSQL Database, Storage, and Edge Functions. Do not use Firebase or Genkit.
+*   **Database Schema:** Follow our defined PostgreSQL schema for `profiles`, `notes`, `gift_codes`, `rate_limits_global` (ensure RLS policies are always correctly applied and never conflict).
+*   **AI Integration:** Google AI models (Gemini) will be accessed via **Supabase Edge Functions**.
+
+**Coding Standards & Best Practices:**
+*   **Client Components:** When using React Hooks (`useState`, `useEffect`, `useContext`, `useAuth`, `useRouter`, `usePathname`), always add the `"use client";` directive at the very top of the file.
+*   **No Hydration Errors:** Avoid code that triggers "Warning: Extra attributes from the server: %s%s" ("class,style") errors. Ensure server-side and client-side renders match.
+*   **Component Modularity:** Break down complex UIs into reusable, well-defined components.
+*   **Error Handling:** Use Shadcn `toast` for user-facing error/success messages. Log technical errors to the console (`console.error`).
+*   **RLS Awareness:** When modifying database interaction, always consider and explicitly state RLS implications.
+*   **Token Efficiency:** Write concise and direct prompts. Avoid unnecessary steps or redundant code.
+
+**Debugging Guidance:**
+*   When a problem occurs, provide detailed error messages (including stack traces).
+*   Suggest precise code modifications.
+*   Add `console.log` statements with clear prefixes (e.g., `[Auth]`, `[RecordPage]`) to help trace execution flow and state changes.
+*   Explain the *why* behind the fix (e.g., "This fixes the race condition by...").
