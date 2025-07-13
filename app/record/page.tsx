@@ -1,45 +1,87 @@
-// src/hooks/use-auth.ts - DEBUG VERSION
-// Check your useAuth hook for conditional hooks
+"use client"; // CRITICAL: Ensure this is present as it uses client-side hooks
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/src/hooks/use-auth'; // CRITICAL: It MUST import useAuth, not define it
+import RecordingControls from '@/src/components/RecordingControls'; // Assuming this component exists
+import LoadingSpinner from '@/src/components/ui/LoadingSpinner'; // Assuming this component exists
 
-export function useAuth() {
-  // ❌ NEVER DO THIS - Conditional hooks
-  // if (someCondition) {
-  //   const [state, setState] = useState(null);
-  // }
+/**
+ * Record page component - Protected voice recording interface
+ * Only accessible to authenticated users with defensive loading state handling
+ */
+export default function RecordPage() {
+  // --- ALL HOOKS MUST BE CALLED UNCONDITIONALLY AT THE TOP ---
+  const { user, profile, isLoading } = useAuth(); // Called unconditionally
+  const router = useRouter(); // Called unconditionally
 
-  // ✅ ALWAYS DO THIS - All hooks at the top level
-  const [user, setUser] = useState(null);
-  const [profile, setProfile] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // ❌ NEVER DO THIS - Hook inside condition
-  // if (user) {
-  //   useEffect(() => {
-  //     // This will cause the hooks error
-  //   }, []);
-  // }
-
-  // ✅ ALWAYS DO THIS - useEffect always called
+  // --- CRITICAL: Redirection for unauthenticated users (useEffect always called) ---
   useEffect(() => {
-    // Conditional logic INSIDE the effect is fine
-    if (user) {
-      // Do something with user
+    // Only redirect if authentication is NOT loading AND there's no user.
+    // This useEffect runs after every render, checking the latest state.
+    if (!isLoading && !user) {
+      console.log('RecordPage (useEffect): Not authenticated, redirecting to /login...');
+      router.push('/login');
     }
-  }, [user]);
+    // No redirection needed if user is present. The component's render logic (below)
+    // will handle loading states (for profile) or render content.
+  }, [user, isLoading, router]); // Dependencies: user, isLoading, router are essential
 
-  // ❌ NEVER DO THIS - Early return before hooks
-  // if (someCondition) {
-  //   return { user: null, profile: null, isLoading: false };
-  // }
-  // const [anotherState, setAnotherState] = useState(null); // This hook would be skipped
 
-  // ✅ ALWAYS DO THIS - All hooks called before any returns
-  return {
-    user,
-    profile,
-    isLoading,
-    // ... other auth methods
-  };
+  // --- CRITICAL: Defensive rendering logic based on state ---
+  // This section only contains conditional RETURN statements for JSX,
+  // not conditional hook calls.
+
+  if (isLoading) {
+    console.log('RecordPage (render): Still loading auth state...');
+    return (
+      <div className="h-[calc(100vh-120px)] flex items-center justify-center bg-dark-primary-bg">
+        <div className="text-center">
+          <LoadingSpinner />
+          <p className="text-dark-text-muted mt-4">Loading application...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If we reach here and !user, it means useEffect above has initiated the redirection.
+  // We return null to avoid rendering any content while the redirect happens.
+  if (!user) {
+      console.log('RecordPage (render): No user, returning null (should be redirecting).');
+      return null; 
+  }
+
+  // If user is present but profile is not yet loaded (e.g., initial fetch, or after upsert)
+  if (!profile) {
+    console.log('RecordPage (render): User detected, but profile still loading...');
+    return (
+      <div className="h-[calc(100vh-120px)] flex items-center justify-center bg-dark-primary-bg">
+        <div className="text-center">
+          <LoadingSpinner />
+          <p className="text-dark-text-muted mt-4">Loading user profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // --- SUCCESS: User and profile are fully loaded, render main content ---
+  console.log('RecordPage (render): Rendering main content for user:', user.id, 'with profile:', profile.id);
+
+  return (
+    <div className="h-[calc(100vh-120px)] flex flex-col justify-center px-4">
+      <div className="text-center mb-6 max-w-sm mx-auto">
+        <h1 className="text-xl font-bold mb-2 text-foreground gradient-text">
+          Welcome back, {profile.email?.split('@')[0] || 'Creator'}!
+        </h1>
+        <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+          Ready to capture your next brilliant idea?
+        </p>
+        <div className="text-xs text-muted-foreground">
+          Credits: {profile.credits.toLocaleString()}
+        </div>
+      </div>
+      
+      <RecordingControls />
+    </div>
+  );
 }
