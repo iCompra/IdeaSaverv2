@@ -25,14 +25,6 @@ export default function LoginPage() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
 
-  // --- CRITICAL: Redirection for authenticated users on login page ---
-  useEffect(() => {
-    if (!authLoading && user) {
-      // If user is authenticated and loading is complete, redirect to /record
-      console.log('LoginPage: User authenticated, redirecting to /record');
-      router.push('/record');
-    }
-  }, [user, authLoading, router]);
   /**
    * Check Supabase configuration on component mount
    */
@@ -45,20 +37,14 @@ export default function LoginPage() {
     }
   }, []);
 
-  // Show loading if auth state is pending OR user is already authenticated (and redirecting)
-  if (authLoading || user) {
-    console.log('LoginPage: Is loading or User is present, rendering redirect/loading...');
-    return (
-      <div className="flex justify-center items-center min-h-screen bg-dark-primary-bg">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-foreground">
-            {authLoading ? 'Loading authentication...' : 'Redirecting to your dashboard...'}
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // --- CRITICAL: Redirection for authenticated users on login page ---
+  useEffect(() => {
+    if (!authLoading && user) {
+      // If user is authenticated and loading is complete, redirect to /record
+      console.log('LoginPage: User authenticated, redirecting to /record');
+      router.push('/record');
+    }
+  }, [user, authLoading, router]);
 
   /**
    * Clear error when switching tabs or changing form values
@@ -283,6 +269,21 @@ export default function LoginPage() {
     setEmail('');
     setPassword('');
   };
+
+  // Show loading if auth state is pending OR user is already authenticated (and redirecting)
+  if (authLoading || user) {
+    console.log('LoginPage: Is loading or User is present, rendering redirect/loading...');
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-dark-primary-bg">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-foreground">
+            {authLoading ? 'Loading authentication...' : 'Redirecting to your dashboard...'}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   // --- Only render the login/signup form if NOT loading and NOT authenticated ---
   console.log('LoginPage: Rendering login/signup form.');
